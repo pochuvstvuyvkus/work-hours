@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Учёт часов</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%232f6b4f'/%3E%3Cpath d='M16 8v8l5 3' stroke='white' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --card: #ffffff;
+    --text: #1d1f1c;
+    --muted: #6b6f68;
+    --line: #e3e1da;
+    --accent: #2f6b4f;
+    --accent-soft: #e4efe8;
+    --danger: #b4432f;
+    --radius: 14px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141614;
+      --card: #1d201d;
+      --text: #ecebe6;
+      --muted: #9a9e96;
+      --line: #2d312c;
+      --accent: #6fbf95;
+      --accent-soft: #1f3328;
+      --danger: #e2826f;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+  header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  h1 { font-size: 26px; margin: 0; letter-spacing: -0.01em; }
+  .today { color: var(--muted); font-size: 15px; }
+  .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
+  .card .label { color: var(--muted); font-size: 13px; }
+  .card .money { font-size: 24px; font-weight: 650; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  .card .hours { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+  .card.main { background: var(--accent-soft); border-color: transparent; }
+  form.entry { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 22px; }
+  .row { display: grid; grid-template-columns: 150px 1fr 110px 120px; gap: 10px; }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  input, select {
+    width: 100%; font: inherit; color: var(--text); background: var(--bg);
+    border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-height: 44px;
+  }
+  input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: transparent; }
+  .form-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
+  .preview { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .preview b { color: var(--text); }
+  .error { color: var(--danger); font-size: 14px; }
+  button {
+    font: inherit; border-radius: 10px; padding: 10px 18px; min-height: 44px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--text);
+  }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  @media (prefers-color-scheme: dark) { button.primary { color: #0f1a14; } }
+  button.link { border: none; background: none; padding: 6px 8px; min-height: 0; color: var(--muted); font-size: 14px; }
+  button.link:hover { color: var(--text); }
+  button.link.del:hover { color: var(--danger); }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .toolbar h2 { font-size: 18px; margin: 0; }
+  .toolbar select { width: auto; min-width: 180px; }
+  .period { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 14px; }
+  .period-total { display: flex; justify-content: space-between; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .projects { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px; }
+  .projects div { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 14px; padding: 2px 0; font-variant-numeric: tabular-nums; }
+  .day { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
+  .day-head { display: flex; justify-content: space-between; gap: 10px; padding: 12px 16px; background: var(--accent-soft); font-weight: 600; font-variant-numeric: tabular-nums; flex-wrap: wrap; }
+  .day-head .sum { white-space: nowrap; }
+  .item { display: grid; grid-template-columns: 1fr auto auto; gap: 12px; align-items: center; padding: 10px 16px; border-top: 1px solid var(--line); }
+  .item:first-of-type { border-top: none; }
+  .item .proj { word-break: break-word; }
+  .item .meta { color: var(--muted); font-size: 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .item .amount { font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; text-align: right; }
+  .item .actions { grid-column: 1 / -1; display: flex; gap: 4px; margin: -6px 0 -4px -8px; }
+  .empty { color: var(--muted); text-align: center; padding: 30px 10px; }
+  .data { margin-top: 28px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .note { color: var(--muted); font-size: 13px; margin-top: 10px; }
+  .editing { outline: 2px solid var(--accent); }
+  @media (max-width: 640px) {
+    .cards { grid-template-columns: 1fr 1fr; }
+    .cards .card:first-child { grid-column: 1 / -1; }
+    .row { grid-template-columns: 1fr 1fr; }
+    .row .f-project { grid-column: 1 / -1; order: -1; }
+    .card .money { font-size: 20px; }
+    .toolbar select { width: 100%; }
+    .form-foot button { width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Учёт часов</h1>
+    <div class="today" id="today"></div>
+  </header>
+
+  <section class="cards">
+    <div class="card main"><div class="label">Сегодня</div><div class="money" id="sumToday">0 ₽</div><div class="hours" id="hToday">0 ч</div></div>
+    <div class="card"><div class="label" id="monthLabel">Этот месяц</div><div class="money" id="sumMonth">0 ₽</div><div class="hours" id="hMonth">0 ч</div></div>
+    <div class="card"><div class="label">За всё время</div><div class="money" id="sumAll">0 ₽</div><div class="hours" id="hAll">0 ч</div></div>
+  </section>
+
+  <form class="entry" id="form" autocomplete="off">
+    <div class="row">
+      <div><label for="date">Дата</label><input type="date" id="date" required></div>
+      <div class="f-project"><label for="project">Проект</label><input id="project" list="projectList" placeholder="Например, Геодомика" required><datalist id="projectList"></datalist></div>
+      <div><label for="hours">Часы</label><input id="hours" inputmode="decimal" placeholder="1,5 или 1:30" required></div>
+      <div><label for="rate">Ставка, ₽/ч</label><input id="rate" type="number" min="0" step="50" inputmode="numeric" required></div>
+    </div>
+    <div class="form-foot">
+      <div><span class="preview" id="preview"></span> <span class="error" id="error"></span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" id="cancelEdit" hidden>Отмена</button>
+        <button type="submit" class="primary" id="submit">Добавить</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="toolbar">
+    <h2>Записи</h2>
+    <select id="period" aria-label="Период"></select>
+  </div>
+  <div class="period" id="periodBox"></div>
+  <div id="list"></div>
+
+  <div class="data">
+    <button type="button" id="exportCsv">Выгрузить в Excel (CSV)</button>
+    <button type="button" id="backup">Сохранить копию</button>
+    <button type="button" id="restoreBtn">Загрузить копию</button>
+    <input type="file" id="restore" accept="application/json,.json" hidden>
+  </div>
+  <p class="note">Записи хранятся в этом браузере на этом устройстве. Время от времени нажимайте «Сохранить копию», чтобы не потерять их при очистке браузера или переходе на другой компьютер.</p>
+</div>
+
+<script>
+(function () {
+  const KEY = 'work-hours-v1';
+  const DEFAULT_RATE = 1000;
+  const $ = (id) => document.getElementById(id);
+
+  // ---------- хранение ----------
+  function load() {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        if (data && Array.isArray(data.entries)) return { rate: Number(data.rate) || DEFAULT_RATE, entries: data.entries };
+      }
+    } catch (e) { /* пусто или недоступно */ }
+    return { rate: DEFAULT_RATE, entries: [] };
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); }
+    catch (e) { alert('Не получилось сохранить в браузере. Сделайте копию кнопкой «Сохранить копию».'); }
+  }
+  let state = load();
+  let editingId = null;
+
+  // ---------- форматирование ----------
+  const pad = (n) => String(n).padStart(2, '0');
+  const isoDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const todayIso = () => isoDate(new Date());
+  const parseIso = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const money = (n) => Math.round(n).toLocaleString('ru-RU') + ' ₽';
+  const hoursText = (h) => {
+    const r = Math.round(h * 100) / 100;
+    return r.toLocaleString('ru-RU', { maximumFractionDigits: 2 }) + ' ч';
+  };
+  const dayTitle = (iso) => {
+    const s = parseIso(iso).toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  };
+  const monthTitle = (ym) => {
+    const [y, m] = ym.split('-').map(Number);
+    const s = new Date(y, m - 1, 1).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  };
+
+  // "1,5" -> 1.5; "1:30" -> 1.5; "2" -> 2
+  function parseHours(text) {
+    const t = String(text).trim().replace(/\s+/g, '');
+    if (!t) return NaN;
+    if (t.includes(':')) {
+      const [h, m] = t.split(':');
+      if (!/^\d*$/.test(h) || !/^\d{1,2}$/.test(m) || Number(m) >= 60) return NaN;
+      return Number(h || 0) + Number(m) / 60;
+    }
+    if (!/^\d*[.,]?\d*$/.test(t)) return NaN;
+    return Number(t.replace(',', '.'));
+  }
+
+  const amount = (e) => e.hours * e.rate;
+  const sum = (list) => list.reduce((a, e) => ({ h: a.h + e.hours, m: a.m + amount(e) }), { h: 0, m: 0 });
+
+  // ---------- отрисовка ----------
+  function renderToday() {
+    const s = new Date().toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    $('today').textContent = s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function renderCards() {
+    const t = todayIso();
+    const ym = t.slice(0, 7);
+    const a = sum(state.entries.filter((e) => e.date === t));
+    const b = sum(state.entries.filter((e) => e.date.slice(0, 7) === ym));
+    const c = sum(state.entries);
+    $('sumToday').textContent = money(a.m); $('hToday').textContent = hoursText(a.h);
+    $('monthLabel').textContent = monthTitle(ym);
+    $('sumMonth').textContent = money(b.m); $('hMonth').textContent = hoursText(b.h);
+    $('sumAll').textContent = money(c.m); $('hAll').textContent = hoursText(c.h);
+  }
+
+  function renderPeriodOptions() {
+    const sel = $('period');
+    const prev = sel.value;
+    const months = [...new Set(state.entries.map((e) => e.date.slice(0, 7)))].sort().reverse();
+    const cur = todayIso().slice(0, 7);
+    if (!months.includes(cur)) months.unshift(cur);
+    sel.innerHTML = '';
+    for (const ym of months) sel.add(new Option(monthTitle(ym), ym));
+    sel.add(new Option('Всё время', 'all'));
+    sel.value = [...sel.options].some((o) => o.value === prev) ? prev : cur;
+  }
+
+  function filtered() {
+    const p = $('period').value;
+    return p === 'all' ? state.entries : state.entries.filter((e) => e.date.slice(0, 7) === p);
+  }
+
+  function renderPeriod(list) {
+    const box = $('periodBox');
+    const total = sum(list);
+    const byProject = new Map();
+    for (const e of list) {
+      const k = e.project.trim();
+      const cur = byProject.get(k) || { h: 0, m: 0 };
+      cur.h += e.hours; cur.m += amount(e);
+      byProject.set(k, cur);
+    }
+    const rows = [...byProject.entries()].sort((a, b) => b[1].m - a[1].m)
+      .map(([name, v]) => `<div><span>${esc(name)}</span><span>${hoursText(v.h)} · ${money(v.m)}</span></div>`).join('');
+    box.innerHTML = `<div class="period-total"><span>Итого за период</span><span>${hoursText(total.h)} · ${money(total.m)}</span></div>`
+      + (byProject.size > 1 ? `<div class="projects">${rows}</div>` : '');
+    box.hidden = list.length === 0;
+  }
+
+  function renderList() {
+    const list = filtered();
+    renderPeriod(list);
+    const box = $('list');
+    if (list.length === 0) {
+      box.innerHTML = '<div class="empty">Записей за этот период пока нет. Добавьте первую в форме выше.</div>';
+      return;
+    }
+    const byDay = new Map();
+    for (const e of list) {
+      if (!byDay.has(e.date)) byDay.set(e.date, []);
+      byDay.get(e.date).push(e);
+    }
+    const days = [...byDay.keys()].sort().reverse();
+    box.innerHTML = days.map((d) => {
+      const items = byDay.get(d).sort((a, b) => a.created - b.created);
+      const s = sum(items);
+      return `<div class="day">
+        <div class="day-head"><span>${dayTitle(d)}</span><span class="sum">${hoursText(s.h)} · ${money(s.m)}</span></div>
+        ${items.map((e) => `<div class="item${e.id === editingId ? ' editing' : ''}">
+          <div class="proj">${esc(e.project)}</div>
+          <div class="meta">${hoursText(e.hours)} × ${money(e.rate)}</div>
+          <div class="amount">${money(amount(e))}</div>
+          <div class="actions">
+            <button type="button" class="link" data-edit="${e.id}">Изменить</button>
+            <button type="button" class="link del" data-del="${e.id}">Удалить</button>
+          </div>
+        </div>`).join('')}
+      </div>`;
+    }).join('');
+  }
+
+  function renderProjects() {
+    const names = [...new Set(state.entries.map((e) => e.project.trim()))].sort((a, b) => a.localeCompare(b, 'ru'));
+    $('projectList').innerHTML = names.map((n) => `<option value="${esc(n)}">`).join('');
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function renderAll() {
+    renderToday();
+    renderCards();
+    renderPeriodOptions();
+    renderList();
+    renderProjects();
+  }
+
+  // ---------- форма ----------
+  function updatePreview() {
+    const h = parseHours($('hours').value);
+    const r = Number($('rate').value);
+    $('preview').innerHTML = h > 0 && r >= 0 ? `Сумма: <b>${money(h * r)}</b>` : '';
+  }
+
+  function resetForm() {
+    editingId = null;
+    $('project').value = '';
+    $('hours').value = '';
+    $('rate').value = state.rate;
+    $('submit').textContent = 'Добавить';
+    $('cancelEdit').hidden = true;
+    $('error').textContent = '';
+    updatePreview();
+  }
+
+  $('form').addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const date = $('date').value;
+    const project = $('project').value.trim();
+    const hours = parseHours($('hours').value);
+    const rate = Number($('rate').value);
+    if (!date) return void ($('error').textContent = 'Укажите дату.');
+    if (!project) return void ($('error').textContent = 'Напишите название проекта.');
+    if (!(hours > 0) || hours > 24) return void ($('error').textContent = 'Часы: число от 0 до 24, например 1,5 или 1:30.');
+    if (!(rate >= 0)) return void ($('error').textContent = 'Укажите ставку.');
+
+    if (editingId) {
+      const e = state.entries.find((x) => x.id === editingId);
+      if (e) Object.assign(e, { date, project, hours, rate });
+    } else {
+      state.entries.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), date, project, hours, rate, created: Date.now() });
+    }
+    state.rate = rate;
+    save();
+    const ym = date.slice(0, 7);
+    resetForm();
+    renderAll();
+    if ($('period').value !== 'all' && $('period').value !== ym) { $('period').value = ym; renderList(); }
+    $('project').focus();
+  });
+
+  $('cancelEdit').addEventListener('click', () => { resetForm(); renderList(); });
+  $('hours').addEventListener('input', updatePreview);
+  $('rate').addEventListener('input', updatePreview);
+  $('period').addEventListener('change', renderList);
+
+  $('list').addEventListener('click', (ev) => {
+    const editId = ev.target.getAttribute('data-edit');
+    const delId = ev.target.getAttribute('data-del');
+    if (editId) {
+      const e = state.entries.find((x) => x.id === editId);
+      if (!e) return;
+      editingId = e.id;
+      $('date').value = e.date;
+      $('project').value = e.project;
+      $('hours').value = String(Math.round(e.hours * 100) / 100).replace('.', ',');
+      $('rate').value = e.rate;
+      $('submit').textContent = 'Сохранить';
+      $('cancelEdit').hidden = false;
+      updatePreview();
+      renderList();
+      $('form').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    if (delId) {
+      const e = state.entries.find((x) => x.id === delId);
+      if (!e) return;
+      if (!confirm(`Удалить запись «${e.project}», ${hoursText(e.hours)}?`)) return;
+      state.entries = state.entries.filter((x) => x.id !== delId);
+      if (editingId === delId) resetForm();
+      save();
+      renderAll();
+    }
+  });
+
+  // ---------- выгрузка и копии ----------
+  function download(name, text, type) {
+    const blob = new Blob([text], { type });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+
+  $('exportCsv').addEventListener('click', () => {
+    const list = [...filtered()].sort((a, b) => a.date.localeCompare(b.date) || a.created - b.created);
+    const num = (n) => String(Math.round(n * 100) / 100).replace('.', ',');
+    const q = (s) => '"' + String(s).replace(/"/g, '""') + '"';
+    const lines = [['Дата', 'Проект', 'Часы', 'Ставка', 'Сумма'].join(';')];
+    for (const e of list) {
+      const [y, m, d] = e.date.split('-');
+      lines.push([`${d}.${m}.${y}`, q(e.project), num(e.hours), num(e.rate), num(amount(e))].join(';'));
+    }
+    const t = sum(list);
+    lines.push(['Итого', '', num(t.h), '', num(t.m)].join(';'));
+    const p = $('period').value;
+    download(`chasy-${p === 'all' ? 'vse' : p}.csv`, '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
+  });
+
+  $('backup').addEventListener('click', () => {
+    download(`chasy-kopiya-${todayIso()}.json`, JSON.stringify(state, null, 2), 'application/json');
+  });
+
+  $('restoreBtn').addEventListener('click', () => $('restore').click());
+  $('restore').addEventListener('change', async () => {
+    const file = $('restore').files[0];
+    $('restore').value = '';
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      if (!data || !Array.isArray(data.entries)) throw new Error('bad');
+      const ok = data.entries.every((e) => e && typeof e.id === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(e.date) && typeof e.project === 'string' && e.hours > 0 && e.rate >= 0);
+      if (!ok) throw new Error('bad');
+      if (!confirm(`В копии ${data.entries.length} записей. Заменить ими текущие записи (${state.entries.length})?`)) return;
+      state = { rate: Number(data.rate) || DEFAULT_RATE, entries: data.entries.map((e) => ({ ...e, created: e.created || 0 })) };
+      save();
+      resetForm();
+      renderAll();
+    } catch (e) {
+      alert('Этот файл не похож на копию учёта часов.');
+    }
+  });
+
+  // ---------- старт ----------
+  $('date').value = todayIso();
+  resetForm();
+  renderAll();
+
+  // Новый день наступил, пока страница открыта: обновить дату и «Сегодня».
+  let lastDay = todayIso();
+  setInterval(() => {
+    const t = todayIso();
+    if (t !== lastDay) {
+      if ($('date').value === lastDay) $('date').value = t;
+      lastDay = t;
+      renderAll();
+    }
+  }, 60000);
+})();
+</script>
+</body>
+</html>
