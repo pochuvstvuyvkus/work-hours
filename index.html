@@ -16,6 +16,7 @@
     --accent: #2f6b4f;
     --accent-soft: #e4efe8;
     --danger: #b4432f;
+    --warn-soft: #fbf1dc;
     --radius: 14px;
   }
   @media (prefers-color-scheme: dark) {
@@ -28,6 +29,7 @@
       --accent: #6fbf95;
       --accent-soft: #1f3328;
       --danger: #e2826f;
+      --warn-soft: #3a3020;
     }
   }
   * { box-sizing: border-box; }
@@ -38,17 +40,23 @@
     color: var(--text);
     font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
+  a { color: var(--accent); }
   .wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
-  header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+  header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
   h1 { font-size: 26px; margin: 0; letter-spacing: -0.01em; }
   .today { color: var(--muted); font-size: 15px; }
+  .head-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .badge { font-size: 13px; padding: 4px 10px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); color: var(--muted); }
+  .badge.on { background: var(--accent-soft); border-color: transparent; color: var(--text); }
   .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; }
   .card .label { color: var(--muted); font-size: 13px; }
   .card .money { font-size: 24px; font-weight: 650; margin-top: 2px; font-variant-numeric: tabular-nums; }
   .card .hours { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
   .card.main { background: var(--accent-soft); border-color: transparent; }
-  form.entry { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 22px; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 22px; }
+  .panel h3 { margin: 0 0 8px; font-size: 16px; }
+  .panel ol { margin: 8px 0 12px; padding-left: 20px; color: var(--muted); font-size: 14px; }
   .row { display: grid; grid-template-columns: 150px 1fr 110px 120px; gap: 10px; }
   label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
   input, select {
@@ -60,20 +68,23 @@
   .preview { color: var(--muted); font-variant-numeric: tabular-nums; }
   .preview b { color: var(--text); }
   .error { color: var(--danger); font-size: 14px; }
+  .status { font-size: 14px; color: var(--muted); }
   button {
     font: inherit; border-radius: 10px; padding: 10px 18px; min-height: 44px; cursor: pointer;
     border: 1px solid var(--line); background: var(--card); color: var(--text);
   }
+  button:disabled { opacity: .55; cursor: default; }
   button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
   @media (prefers-color-scheme: dark) { button.primary { color: #0f1a14; } }
+  button.small { padding: 6px 12px; min-height: 34px; font-size: 14px; }
   button.link { border: none; background: none; padding: 6px 8px; min-height: 0; color: var(--muted); font-size: 14px; }
   button.link:hover { color: var(--text); }
   button.link.del:hover { color: var(--danger); }
-  .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin: 6px 0 10px; }
   .toolbar h2 { font-size: 18px; margin: 0; }
   .toolbar select { width: auto; min-width: 180px; }
   .period { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 14px; }
-  .period-total { display: flex; justify-content: space-between; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .period-total { display: flex; justify-content: space-between; gap: 10px; font-weight: 600; font-variant-numeric: tabular-nums; }
   .projects { margin-top: 8px; border-top: 1px solid var(--line); padding-top: 8px; }
   .projects div { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 14px; padding: 2px 0; font-variant-numeric: tabular-nums; }
   .day { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); margin-bottom: 12px; overflow: hidden; }
@@ -85,10 +96,16 @@
   .item .meta { color: var(--muted); font-size: 14px; white-space: nowrap; font-variant-numeric: tabular-nums; }
   .item .amount { font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; text-align: right; }
   .item .actions { grid-column: 1 / -1; display: flex; gap: 4px; margin: -6px 0 -4px -8px; }
+  .item.editing { outline: 2px solid var(--accent); outline-offset: -2px; }
   .empty { color: var(--muted); text-align: center; padding: 30px 10px; }
-  .data { margin-top: 28px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .history { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .h-item { padding: 10px 16px; border-top: 1px solid var(--line); }
+  .h-item:first-child { border-top: none; }
+  .h-msg { white-space: pre-line; word-break: break-word; }
+  .h-meta { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .notice { background: var(--warn-soft); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 18px; font-size: 14px; }
+  .data { margin-top: 24px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .note { color: var(--muted); font-size: 13px; margin-top: 10px; }
-  .editing { outline: 2px solid var(--accent); }
   @media (max-width: 640px) {
     .cards { grid-template-columns: 1fr 1fr; }
     .cards .card:first-child { grid-column: 1 / -1; }
@@ -96,16 +113,42 @@
     .row .f-project { grid-column: 1 / -1; order: -1; }
     .card .money { font-size: 20px; }
     .toolbar select { width: 100%; }
-    .form-foot button { width: 100%; }
+    .form-foot > div:last-child, .form-foot button { width: 100%; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>Учёт часов</h1>
-    <div class="today" id="today"></div>
+    <div>
+      <h1>Учёт часов</h1>
+      <div class="today" id="today"></div>
+    </div>
+    <div class="head-right">
+      <span class="badge" id="modeBadge">Только просмотр</span>
+      <button type="button" class="small" id="loginBtn">Войти для записи</button>
+      <button type="button" class="small" id="logoutBtn" hidden>Выйти</button>
+    </div>
   </header>
+
+  <div class="notice" id="notice" hidden></div>
+
+  <section class="panel" id="loginPanel" hidden>
+    <h3>Вход для записи</h3>
+    <div class="status">Записи сохраняются в репозиторий GitHub, поэтому для записи нужен ключ доступа GitHub. Его видит только этот браузер.</div>
+    <ol>
+      <li><a id="tokenLink" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Создайте ключ на GitHub</a> (Fine-grained token).</li>
+      <li>Repository access: «Only select repositories», выберите <b id="repoName"></b>.</li>
+      <li>Permissions, Repository permissions: «Contents» поставьте «Read and write».</li>
+      <li>Нажмите «Generate token», скопируйте ключ и вставьте ниже.</li>
+    </ol>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <input type="password" id="tokenInput" placeholder="github_pat_..." autocomplete="off" style="flex:1;min-width:220px">
+      <button type="button" class="primary" id="tokenSave">Войти</button>
+      <button type="button" id="tokenCancel">Отмена</button>
+    </div>
+    <div class="error" id="tokenError"></div>
+  </section>
 
   <section class="cards">
     <div class="card main"><div class="label">Сегодня</div><div class="money" id="sumToday">0 ₽</div><div class="hours" id="hToday">0 ч</div></div>
@@ -113,7 +156,7 @@
     <div class="card"><div class="label">За всё время</div><div class="money" id="sumAll">0 ₽</div><div class="hours" id="hAll">0 ч</div></div>
   </section>
 
-  <form class="entry" id="form" autocomplete="off">
+  <form class="panel" id="form" autocomplete="off" hidden>
     <div class="row">
       <div><label for="date">Дата</label><input type="date" id="date" required></div>
       <div class="f-project"><label for="project">Проект</label><input id="project" list="projectList" placeholder="Например, Геодомика" required><datalist id="projectList"></datalist></div>
@@ -121,7 +164,7 @@
       <div><label for="rate">Ставка, ₽/ч</label><input id="rate" type="number" min="0" step="50" inputmode="numeric" required></div>
     </div>
     <div class="form-foot">
-      <div><span class="preview" id="preview"></span> <span class="error" id="error"></span></div>
+      <div><span class="preview" id="preview"></span> <span class="error" id="error"></span><span class="status" id="saveStatus"></span></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button type="button" id="cancelEdit" hidden>Отмена</button>
         <button type="submit" class="primary" id="submit">Добавить</button>
@@ -133,63 +176,56 @@
     <h2>Записи</h2>
     <select id="period" aria-label="Период"></select>
   </div>
-  <div class="period" id="periodBox"></div>
-  <div id="list"></div>
+  <div class="period" id="periodBox" hidden></div>
+  <div id="list"><div class="empty">Загрузка…</div></div>
+
+  <div class="toolbar" style="margin-top:28px">
+    <h2>История изменений</h2>
+    <button type="button" class="small" id="refreshBtn">Обновить</button>
+  </div>
+  <div class="history" id="history"><div class="empty">Загрузка…</div></div>
 
   <div class="data">
     <button type="button" id="exportCsv">Выгрузить в Excel (CSV)</button>
-    <button type="button" id="backup">Сохранить копию</button>
-    <button type="button" id="restoreBtn">Загрузить копию</button>
-    <input type="file" id="restore" accept="application/json,.json" hidden>
   </div>
-  <p class="note">Записи хранятся в этом браузере на этом устройстве. Время от времени нажимайте «Сохранить копию», чтобы не потерять их при очистке браузера или переходе на другой компьютер.</p>
+  <p class="note" id="footNote"></p>
 </div>
 
 <script>
 (function () {
-  const KEY = 'work-hours-v1';
+  // ---------- где лежат данные ----------
+  const host = location.hostname;
+  const OWNER = host.endsWith('.github.io') ? host.split('.')[0] : 'pochuvstvuyvkus';
+  const REPO = host.endsWith('.github.io') ? (location.pathname.split('/')[1] || 'work-hours') : 'work-hours';
+  const BRANCH = 'main';
+  const FILE = 'data.json';
+  const API = `https://api.github.com/repos/${OWNER}/${REPO}`;
+  const TOKEN_KEY = 'work-hours-token';
   const DEFAULT_RATE = 1000;
   const $ = (id) => document.getElementById(id);
 
-  // ---------- хранение ----------
-  function load() {
-    try {
-      const raw = localStorage.getItem(KEY);
-      if (raw) {
-        const data = JSON.parse(raw);
-        if (data && Array.isArray(data.entries)) return { rate: Number(data.rate) || DEFAULT_RATE, entries: data.entries };
-      }
-    } catch (e) { /* пусто или недоступно */ }
-    return { rate: DEFAULT_RATE, entries: [] };
-  }
-  function save() {
-    try { localStorage.setItem(KEY, JSON.stringify(state)); }
-    catch (e) { alert('Не получилось сохранить в браузере. Сделайте копию кнопкой «Сохранить копию».'); }
-  }
-  let state = load();
+  let data = { rate: DEFAULT_RATE, entries: [] };
+  let sha = null;
+  let token = '';
+  let canWrite = false;
   let editingId = null;
+  let busy = false;
+
+  try { token = localStorage.getItem(TOKEN_KEY) || ''; } catch (e) { token = ''; }
 
   // ---------- форматирование ----------
   const pad = (n) => String(n).padStart(2, '0');
   const isoDate = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   const todayIso = () => isoDate(new Date());
   const parseIso = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+  const ruDate = (iso) => { const [y, m, d] = iso.split('-'); return `${d}.${m}.${y}`; };
   const money = (n) => Math.round(n).toLocaleString('ru-RU') + ' ₽';
-  const hoursText = (h) => {
-    const r = Math.round(h * 100) / 100;
-    return r.toLocaleString('ru-RU', { maximumFractionDigits: 2 }) + ' ч';
-  };
-  const dayTitle = (iso) => {
-    const s = parseIso(iso).toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    return s.charAt(0).toUpperCase() + s.slice(1);
-  };
-  const monthTitle = (ym) => {
-    const [y, m] = ym.split('-').map(Number);
-    const s = new Date(y, m - 1, 1).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
-    return s.charAt(0).toUpperCase() + s.slice(1);
-  };
+  const hoursText = (h) => (Math.round(h * 100) / 100).toLocaleString('ru-RU', { maximumFractionDigits: 2 }) + ' ч';
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const dayTitle = (iso) => cap(parseIso(iso).toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }));
+  const monthTitle = (ym) => { const [y, m] = ym.split('-').map(Number); return cap(new Date(y, m - 1, 1).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' })); };
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-  // "1,5" -> 1.5; "1:30" -> 1.5; "2" -> 2
   function parseHours(text) {
     const t = String(text).trim().replace(/\s+/g, '');
     if (!t) return NaN;
@@ -204,19 +240,102 @@
 
   const amount = (e) => e.hours * e.rate;
   const sum = (list) => list.reduce((a, e) => ({ h: a.h + e.hours, m: a.m + amount(e) }), { h: 0, m: 0 });
+  const short = (e) => `${e.project}, ${ruDate(e.date)}, ${hoursText(e.hours)} × ${money(e.rate)} = ${money(amount(e))}`;
+
+  // ---------- GitHub ----------
+  function headers(withAuth) {
+    const h = { Accept: 'application/vnd.github+json' };
+    if (withAuth && token) h.Authorization = `Bearer ${token}`;
+    return h;
+  }
+  function b64decode(b64) {
+    const bin = atob(b64.replace(/\n/g, ''));
+    return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)));
+  }
+  function b64encode(text) {
+    const bytes = new TextEncoder().encode(text);
+    let bin = '';
+    for (let i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return btoa(bin);
+  }
+  function normalize(d) {
+    const entries = Array.isArray(d && d.entries) ? d.entries.filter((e) => e && typeof e.id === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(e.date) && typeof e.project === 'string' && Number(e.hours) > 0 && Number(e.rate) >= 0)
+      .map((e) => ({ ...e, hours: Number(e.hours), rate: Number(e.rate), created: Number(e.created) || 0 })) : [];
+    return { rate: Number(d && d.rate) || DEFAULT_RATE, entries };
+  }
+
+  async function fetchData() {
+    const res = await fetch(`${API}/contents/${FILE}?ref=${BRANCH}&t=${Date.now()}`, { headers: headers(true), cache: 'no-store' });
+    if (res.status === 404) return { data: { rate: DEFAULT_RATE, entries: [] }, sha: null };
+    if (!res.ok) {
+      // запасной путь, если исчерпан лимит запросов GitHub без входа
+      const raw = await fetch(`https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${FILE}?t=${Date.now()}`, { cache: 'no-store' });
+      if (!raw.ok) throw new Error('Не удалось загрузить данные с GitHub.');
+      return { data: normalize(await raw.json()), sha: null, stale: true };
+    }
+    const json = await res.json();
+    return { data: normalize(JSON.parse(b64decode(json.content))), sha: json.sha };
+  }
+
+  async function fetchHistory() {
+    const res = await fetch(`${API}/commits?path=${FILE}&sha=${BRANCH}&per_page=50&t=${Date.now()}`, { headers: headers(true), cache: 'no-store' });
+    if (!res.ok) throw new Error('history');
+    return res.json();
+  }
+
+  async function putData(newData, message) {
+    const body = { message, content: b64encode(JSON.stringify(newData, null, 2) + '\n'), branch: BRANCH };
+    if (sha) body.sha = sha;
+    const res = await fetch(`${API}/contents/${FILE}`, { method: 'PUT', headers: { ...headers(true), 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (res.status === 409 || res.status === 422) { const e = new Error('conflict'); e.conflict = true; throw e; }
+    if (res.status === 401 || res.status === 403) throw new Error('Ключ GitHub не подходит или у него нет права записи. Войдите заново.');
+    if (!res.ok) throw new Error('GitHub не сохранил запись (ошибка ' + res.status + ').');
+    const json = await res.json();
+    sha = json.content.sha;
+  }
+
+  // Изменение применяется к свежим данным с GitHub, чтобы не затереть чужие правки.
+  async function commit(op) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt > 0) { const fresh = await fetchData(); data = fresh.data; sha = fresh.sha; }
+      const next = { rate: data.rate, entries: data.entries.map((e) => ({ ...e })) };
+      const message = op(next);
+      if (!message) return false;
+      try {
+        await putData(next, message);
+        data = next;
+        return true;
+      } catch (e) {
+        if (!e.conflict) throw e;
+      }
+    }
+    throw new Error('Данные одновременно меняли в другом месте. Обновите страницу и попробуйте ещё раз.');
+  }
+
+  async function checkToken(t) {
+    const res = await fetch(API, { headers: { Accept: 'application/vnd.github+json', Authorization: `Bearer ${t}` } });
+    if (!res.ok) return false;
+    const repo = await res.json();
+    return !!(repo.permissions && repo.permissions.push);
+  }
 
   // ---------- отрисовка ----------
-  function renderToday() {
-    const s = new Date().toLocaleDateString('ru-RU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    $('today').textContent = s.charAt(0).toUpperCase() + s.slice(1);
+  function renderMode() {
+    $('modeBadge').textContent = canWrite ? 'Запись включена' : 'Только просмотр';
+    $('modeBadge').classList.toggle('on', canWrite);
+    $('loginBtn').hidden = canWrite;
+    $('logoutBtn').hidden = !canWrite;
+    $('form').hidden = !canWrite;
+    $('footNote').innerHTML = `Данные хранятся в репозитории <a href="https://github.com/${OWNER}/${REPO}/blob/${BRANCH}/${FILE}" target="_blank" rel="noopener">${OWNER}/${REPO}</a>. Каждое изменение сохраняется в истории GitHub с датой и автором.`;
   }
 
   function renderCards() {
     const t = todayIso();
     const ym = t.slice(0, 7);
-    const a = sum(state.entries.filter((e) => e.date === t));
-    const b = sum(state.entries.filter((e) => e.date.slice(0, 7) === ym));
-    const c = sum(state.entries);
+    const a = sum(data.entries.filter((e) => e.date === t));
+    const b = sum(data.entries.filter((e) => e.date.slice(0, 7) === ym));
+    const c = sum(data.entries);
+    $('today').textContent = dayTitle(t);
     $('sumToday').textContent = money(a.m); $('hToday').textContent = hoursText(a.h);
     $('monthLabel').textContent = monthTitle(ym);
     $('sumMonth').textContent = money(b.m); $('hMonth').textContent = hoursText(b.h);
@@ -226,7 +345,7 @@
   function renderPeriodOptions() {
     const sel = $('period');
     const prev = sel.value;
-    const months = [...new Set(state.entries.map((e) => e.date.slice(0, 7)))].sort().reverse();
+    const months = [...new Set(data.entries.map((e) => e.date.slice(0, 7)))].sort().reverse();
     const cur = todayIso().slice(0, 7);
     if (!months.includes(cur)) months.unshift(cur);
     sel.innerHTML = '';
@@ -235,12 +354,10 @@
     sel.value = [...sel.options].some((o) => o.value === prev) ? prev : cur;
   }
 
-  function filtered() {
-    const p = $('period').value;
-    return p === 'all' ? state.entries : state.entries.filter((e) => e.date.slice(0, 7) === p);
-  }
+  const filtered = () => { const p = $('period').value; return p === 'all' ? data.entries : data.entries.filter((e) => e.date.slice(0, 7) === p); };
 
-  function renderPeriod(list) {
+  function renderList() {
+    const list = filtered();
     const box = $('periodBox');
     const total = sum(list);
     const byProject = new Map();
@@ -252,26 +369,16 @@
     }
     const rows = [...byProject.entries()].sort((a, b) => b[1].m - a[1].m)
       .map(([name, v]) => `<div><span>${esc(name)}</span><span>${hoursText(v.h)} · ${money(v.m)}</span></div>`).join('');
-    box.innerHTML = `<div class="period-total"><span>Итого за период</span><span>${hoursText(total.h)} · ${money(total.m)}</span></div>`
-      + (byProject.size > 1 ? `<div class="projects">${rows}</div>` : '');
+    box.innerHTML = `<div class="period-total"><span>Итого за период</span><span>${hoursText(total.h)} · ${money(total.m)}</span></div>` + (byProject.size > 1 ? `<div class="projects">${rows}</div>` : '');
     box.hidden = list.length === 0;
-  }
 
-  function renderList() {
-    const list = filtered();
-    renderPeriod(list);
-    const box = $('list');
     if (list.length === 0) {
-      box.innerHTML = '<div class="empty">Записей за этот период пока нет. Добавьте первую в форме выше.</div>';
+      $('list').innerHTML = `<div class="empty">Записей за этот период нет.${canWrite ? ' Добавьте первую в форме выше.' : ''}</div>`;
       return;
     }
     const byDay = new Map();
-    for (const e of list) {
-      if (!byDay.has(e.date)) byDay.set(e.date, []);
-      byDay.get(e.date).push(e);
-    }
-    const days = [...byDay.keys()].sort().reverse();
-    box.innerHTML = days.map((d) => {
+    for (const e of list) { if (!byDay.has(e.date)) byDay.set(e.date, []); byDay.get(e.date).push(e); }
+    $('list').innerHTML = [...byDay.keys()].sort().reverse().map((d) => {
       const items = byDay.get(d).sort((a, b) => a.created - b.created);
       const s = sum(items);
       return `<div class="day">
@@ -280,31 +387,74 @@
           <div class="proj">${esc(e.project)}</div>
           <div class="meta">${hoursText(e.hours)} × ${money(e.rate)}</div>
           <div class="amount">${money(amount(e))}</div>
-          <div class="actions">
-            <button type="button" class="link" data-edit="${e.id}">Изменить</button>
-            <button type="button" class="link del" data-del="${e.id}">Удалить</button>
-          </div>
+          ${canWrite ? `<div class="actions"><button type="button" class="link" data-edit="${e.id}">Изменить</button><button type="button" class="link del" data-del="${e.id}">Удалить</button></div>` : ''}
         </div>`).join('')}
       </div>`;
     }).join('');
   }
 
   function renderProjects() {
-    const names = [...new Set(state.entries.map((e) => e.project.trim()))].sort((a, b) => a.localeCompare(b, 'ru'));
+    const names = [...new Set(data.entries.map((e) => e.project.trim()))].sort((a, b) => a.localeCompare(b, 'ru'));
     $('projectList').innerHTML = names.map((n) => `<option value="${esc(n)}">`).join('');
   }
 
-  function esc(s) {
-    return String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  function renderAll() { renderMode(); renderCards(); renderPeriodOptions(); renderList(); renderProjects(); }
+
+  async function loadHistory() {
+    const box = $('history');
+    try {
+      const commits = await fetchHistory();
+      if (!commits.length) { box.innerHTML = '<div class="empty">Изменений пока нет.</div>'; return; }
+      box.innerHTML = commits.map((c) => {
+        const when = new Date(c.commit.author.date).toLocaleString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        const who = (c.author && c.author.login) || c.commit.author.name;
+        return `<div class="h-item"><div class="h-msg">${esc(c.commit.message)}</div><div class="h-meta">${when} · ${esc(who)} · <a href="${c.html_url}" target="_blank" rel="noopener">что изменилось</a></div></div>`;
+      }).join('');
+    } catch (e) {
+      box.innerHTML = `<div class="empty">Не удалось загрузить историю. Она всегда есть на <a href="https://github.com/${OWNER}/${REPO}/commits/${BRANCH}/${FILE}" target="_blank" rel="noopener">GitHub</a>.</div>`;
+    }
   }
 
-  function renderAll() {
-    renderToday();
-    renderCards();
-    renderPeriodOptions();
-    renderList();
-    renderProjects();
+  async function reload() {
+    try {
+      const res = await fetchData();
+      data = res.data; sha = res.sha;
+      $('notice').hidden = !res.stale;
+      if (res.stale) $('notice').textContent = 'GitHub временно ограничил запросы, показаны данные, которые могут отставать на несколько минут.';
+    } catch (e) {
+      $('notice').hidden = false;
+      $('notice').textContent = e.message;
+    }
+    renderAll();
+    loadHistory();
   }
+
+  // ---------- вход ----------
+  $('repoName').textContent = `${OWNER}/${REPO}`;
+  $('tokenLink').href = `https://github.com/settings/personal-access-tokens/new?name=${encodeURIComponent('Учёт часов ' + REPO)}&target_name=${encodeURIComponent(OWNER)}&contents=write`;
+  $('loginBtn').addEventListener('click', () => { $('loginPanel').hidden = false; $('tokenInput').focus(); });
+  $('tokenCancel').addEventListener('click', () => { $('loginPanel').hidden = true; $('tokenError').textContent = ''; });
+  $('tokenSave').addEventListener('click', async () => {
+    const t = $('tokenInput').value.trim();
+    $('tokenError').textContent = '';
+    if (!t) return;
+    $('tokenSave').disabled = true;
+    try {
+      if (!(await checkToken(t))) { $('tokenError').textContent = 'Ключ не подошёл или у него нет права записи в этот репозиторий.'; return; }
+      token = t; canWrite = true;
+      try { localStorage.setItem(TOKEN_KEY, t); } catch (e) { /* только на эту сессию */ }
+      $('tokenInput').value = '';
+      $('loginPanel').hidden = true;
+      await reload();
+    } catch (e) {
+      $('tokenError').textContent = 'Не получилось проверить ключ. Проверьте интернет и попробуйте ещё раз.';
+    } finally { $('tokenSave').disabled = false; }
+  });
+  $('logoutBtn').addEventListener('click', () => {
+    token = ''; canWrite = false; editingId = null;
+    try { localStorage.removeItem(TOKEN_KEY); } catch (e) { /* ничего */ }
+    renderAll();
+  });
 
   // ---------- форма ----------
   function updatePreview() {
@@ -312,141 +462,136 @@
     const r = Number($('rate').value);
     $('preview').innerHTML = h > 0 && r >= 0 ? `Сумма: <b>${money(h * r)}</b>` : '';
   }
-
   function resetForm() {
     editingId = null;
-    $('project').value = '';
-    $('hours').value = '';
-    $('rate').value = state.rate;
-    $('submit').textContent = 'Добавить';
-    $('cancelEdit').hidden = true;
-    $('error').textContent = '';
+    $('project').value = ''; $('hours').value = ''; $('rate').value = data.rate;
+    $('submit').textContent = 'Добавить'; $('cancelEdit').hidden = true; $('error').textContent = '';
     updatePreview();
   }
+  function setBusy(on, text) {
+    busy = on;
+    $('submit').disabled = on;
+    $('saveStatus').textContent = text || '';
+  }
 
-  $('form').addEventListener('submit', (ev) => {
+  $('form').addEventListener('submit', async (ev) => {
     ev.preventDefault();
+    if (busy) return;
     const date = $('date').value;
     const project = $('project').value.trim();
     const hours = parseHours($('hours').value);
     const rate = Number($('rate').value);
+    $('error').textContent = '';
     if (!date) return void ($('error').textContent = 'Укажите дату.');
     if (!project) return void ($('error').textContent = 'Напишите название проекта.');
     if (!(hours > 0) || hours > 24) return void ($('error').textContent = 'Часы: число от 0 до 24, например 1,5 или 1:30.');
     if (!(rate >= 0)) return void ($('error').textContent = 'Укажите ставку.');
-
-    if (editingId) {
-      const e = state.entries.find((x) => x.id === editingId);
-      if (e) Object.assign(e, { date, project, hours, rate });
-    } else {
-      state.entries.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), date, project, hours, rate, created: Date.now() });
+    const id = editingId;
+    setBusy(true, 'Сохраняю в GitHub…');
+    try {
+      await commit((next) => {
+        next.rate = rate;
+        if (id) {
+          const e = next.entries.find((x) => x.id === id);
+          if (!e) return null;
+          const before = short(e);
+          Object.assign(e, { date, project, hours, rate });
+          const after = short(e);
+          return before === after ? null : `Изменено: ${before}\nСтало: ${after}`;
+        }
+        const e = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), date, project, hours, rate, created: Date.now() };
+        next.entries.push(e);
+        return `Добавлено: ${short(e)}`;
+      });
+      resetForm();
+      renderAll();
+      if ($('period').value !== 'all' && $('period').value !== date.slice(0, 7)) { $('period').value = date.slice(0, 7); renderList(); }
+      setBusy(false, 'Сохранено');
+      setTimeout(() => { if (!busy) $('saveStatus').textContent = ''; }, 2500);
+      loadHistory();
+      $('project').focus();
+    } catch (e) {
+      setBusy(false, '');
+      $('error').textContent = e.message;
     }
-    state.rate = rate;
-    save();
-    const ym = date.slice(0, 7);
-    resetForm();
-    renderAll();
-    if ($('period').value !== 'all' && $('period').value !== ym) { $('period').value = ym; renderList(); }
-    $('project').focus();
   });
 
   $('cancelEdit').addEventListener('click', () => { resetForm(); renderList(); });
   $('hours').addEventListener('input', updatePreview);
   $('rate').addEventListener('input', updatePreview);
   $('period').addEventListener('change', renderList);
+  $('refreshBtn').addEventListener('click', reload);
 
-  $('list').addEventListener('click', (ev) => {
+  $('list').addEventListener('click', async (ev) => {
     const editId = ev.target.getAttribute('data-edit');
     const delId = ev.target.getAttribute('data-del');
     if (editId) {
-      const e = state.entries.find((x) => x.id === editId);
+      const e = data.entries.find((x) => x.id === editId);
       if (!e) return;
       editingId = e.id;
-      $('date').value = e.date;
-      $('project').value = e.project;
+      $('date').value = e.date; $('project').value = e.project;
       $('hours').value = String(Math.round(e.hours * 100) / 100).replace('.', ',');
       $('rate').value = e.rate;
-      $('submit').textContent = 'Сохранить';
-      $('cancelEdit').hidden = false;
-      updatePreview();
-      renderList();
+      $('submit').textContent = 'Сохранить'; $('cancelEdit').hidden = false;
+      updatePreview(); renderList();
       $('form').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    if (delId) {
-      const e = state.entries.find((x) => x.id === delId);
-      if (!e) return;
-      if (!confirm(`Удалить запись «${e.project}», ${hoursText(e.hours)}?`)) return;
-      state.entries = state.entries.filter((x) => x.id !== delId);
-      if (editingId === delId) resetForm();
-      save();
-      renderAll();
+    if (delId && !busy) {
+      const e = data.entries.find((x) => x.id === delId);
+      if (!e || !confirm(`Удалить запись «${e.project}», ${hoursText(e.hours)}?`)) return;
+      setBusy(true, 'Удаляю…');
+      try {
+        await commit((next) => {
+          const x = next.entries.find((y) => y.id === delId);
+          if (!x) return null;
+          next.entries = next.entries.filter((y) => y.id !== delId);
+          return `Удалено: ${short(x)}`;
+        });
+        if (editingId === delId) resetForm();
+        renderAll();
+        setBusy(false, '');
+        loadHistory();
+      } catch (err) {
+        setBusy(false, '');
+        alert(err.message);
+      }
     }
   });
 
-  // ---------- выгрузка и копии ----------
-  function download(name, text, type) {
-    const blob = new Blob([text], { type });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = name;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
-  }
-
+  // ---------- выгрузка ----------
   $('exportCsv').addEventListener('click', () => {
     const list = [...filtered()].sort((a, b) => a.date.localeCompare(b.date) || a.created - b.created);
     const num = (n) => String(Math.round(n * 100) / 100).replace('.', ',');
     const q = (s) => '"' + String(s).replace(/"/g, '""') + '"';
     const lines = [['Дата', 'Проект', 'Часы', 'Ставка', 'Сумма'].join(';')];
-    for (const e of list) {
-      const [y, m, d] = e.date.split('-');
-      lines.push([`${d}.${m}.${y}`, q(e.project), num(e.hours), num(e.rate), num(amount(e))].join(';'));
-    }
+    for (const e of list) lines.push([ruDate(e.date), q(e.project), num(e.hours), num(e.rate), num(amount(e))].join(';'));
     const t = sum(list);
     lines.push(['Итого', '', num(t.h), '', num(t.m)].join(';'));
     const p = $('period').value;
-    download(`chasy-${p === 'all' ? 'vse' : p}.csv`, '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
-  });
-
-  $('backup').addEventListener('click', () => {
-    download(`chasy-kopiya-${todayIso()}.json`, JSON.stringify(state, null, 2), 'application/json');
-  });
-
-  $('restoreBtn').addEventListener('click', () => $('restore').click());
-  $('restore').addEventListener('change', async () => {
-    const file = $('restore').files[0];
-    $('restore').value = '';
-    if (!file) return;
-    try {
-      const data = JSON.parse(await file.text());
-      if (!data || !Array.isArray(data.entries)) throw new Error('bad');
-      const ok = data.entries.every((e) => e && typeof e.id === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(e.date) && typeof e.project === 'string' && e.hours > 0 && e.rate >= 0);
-      if (!ok) throw new Error('bad');
-      if (!confirm(`В копии ${data.entries.length} записей. Заменить ими текущие записи (${state.entries.length})?`)) return;
-      state = { rate: Number(data.rate) || DEFAULT_RATE, entries: data.entries.map((e) => ({ ...e, created: e.created || 0 })) };
-      save();
-      resetForm();
-      renderAll();
-    } catch (e) {
-      alert('Этот файл не похож на копию учёта часов.');
-    }
+    const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `chasy-${p === 'all' ? 'vse' : p}.csv`;
+    document.body.appendChild(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   });
 
   // ---------- старт ----------
   $('date').value = todayIso();
-  resetForm();
-  renderAll();
+  renderMode();
+  (async () => {
+    if (token) {
+      try { canWrite = await checkToken(token); } catch (e) { canWrite = false; }
+      if (!canWrite) { token = ''; try { localStorage.removeItem(TOKEN_KEY); } catch (e) { /* ничего */ } }
+    }
+    await reload();
+    resetForm();
+  })();
 
-  // Новый день наступил, пока страница открыта: обновить дату и «Сегодня».
   let lastDay = todayIso();
   setInterval(() => {
     const t = todayIso();
-    if (t !== lastDay) {
-      if ($('date').value === lastDay) $('date').value = t;
-      lastDay = t;
-      renderAll();
-    }
+    if (t !== lastDay) { if ($('date').value === lastDay) $('date').value = t; lastDay = t; renderAll(); }
   }, 60000);
 })();
 </script>
