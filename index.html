@@ -145,8 +145,11 @@
   .month-sum .row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
   .month-sum .total { font-weight: 800; font-size: 16px; }
   .proj { margin-top: 12px; display: grid; gap: 10px; }
-  .proj .p-top { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; }
-  .proj .p-name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .proj > div { min-width: 0; }
+  .proj .p-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 14px; min-width: 0; }
+  .proj .p-name { flex: 1 1 auto; min-width: 0; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .month-sum { min-width: 0; overflow: hidden; }
+  .item .t { min-width: 0; overflow-wrap: anywhere; }
   .proj .p-val { color: var(--muted); white-space: nowrap; }
   .bar { height: 6px; background: var(--surface-2); border-radius: 99px; overflow: hidden; margin-top: 5px; }
   .bar span { display: block; height: 100%; background: var(--accent); border-radius: 99px; }
@@ -518,7 +521,8 @@
     const list = ofMonth(viewMonth);
     const total = sum(list);
     const byProject = new Map();
-    for (const e of list) { const k = e.project.trim(); const cur = byProject.get(k) || { h: 0, m: 0 }; cur.h += e.hours; cur.m += amount(e); byProject.set(k, cur); }
+    // Разбивка по клиенту: «МедТехСервис: права по ролям» и «МедТехСервис: выкладка» — один проект.
+    for (const e of list) { const k = clientOf(e.project); const cur = byProject.get(k) || { h: 0, m: 0 }; cur.h += e.hours; cur.m += amount(e); byProject.set(k, cur); }
     const rows = [...byProject.entries()].sort((a, b) => b[1].m - a[1].m);
     const max = rows.length ? rows[0][1].m || 1 : 1;
     $('monthSum').innerHTML = list.length
@@ -547,11 +551,14 @@
       : `<div class="empty">${canWrite ? 'В этот день записей нет. Добавьте проект и часы выше.' : 'В этот день записей нет.'}</div>`;
   }
 
+  // Клиент записи: часть названия до двоеточия («МедТехСервис: выкладка» → «МедТехСервис»).
+  function clientOf(project) { return project.split(':')[0].trim() || project.trim(); }
+
   function renderProjects() {
-    const names = [...new Set(data.entries.map((e) => e.project.trim()))];
-    const recent = [...data.entries].sort((a, b) => b.created - a.created).map((e) => e.project.trim()).filter((v, i, arr) => arr.indexOf(v) === i).slice(0, 5);
-    $('projectList').innerHTML = names.sort((a, b) => a.localeCompare(b, 'ru')).map((n) => `<option value="${esc(n)}">`).join('');
-    $('quick').innerHTML = recent.map((n) => `<button type="button" class="chip" data-proj="${esc(n)}">${esc(n)}</button>`).join('');
+    // В подсказках только короткие имена клиентов, без длинных описаний работ.
+    const clients = [...data.entries].sort((a, b) => b.created - a.created).map((e) => clientOf(e.project)).filter((v, i, arr) => arr.indexOf(v) === i);
+    $('projectList').innerHTML = [...clients].sort((a, b) => a.localeCompare(b, 'ru')).map((n) => `<option value="${esc(n)}: ">`).join('');
+    $('quick').innerHTML = clients.slice(0, 5).map((n) => `<button type="button" class="chip" data-proj="${esc(n)}">${esc(n)}</button>`).join('');
   }
 
   function renderAll() { renderMode(); renderStats(); renderCalendar(); renderDay(); renderProjects(); }
@@ -692,7 +699,7 @@
   $('rate').addEventListener('input', updatePreview);
   $('quick').addEventListener('click', (ev) => {
     const p = ev.target.getAttribute('data-proj');
-    if (p) { $('project').value = p; $('hours').focus(); }
+    if (p) { const input = $('project'); input.value = `${p}: `; input.focus(); input.setSelectionRange(input.value.length, input.value.length); }
   });
   $('refreshBtn').addEventListener('click', reload);
 
