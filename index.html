@@ -180,7 +180,10 @@
   .list { display: grid; gap: 8px; }
   .item { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 12px 14px; border-radius: 14px; border: 1px solid var(--line); }
   .item.editing { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
-  .item .t { font-weight: 700; word-break: break-word; }
+  .item .t { font-weight: 700; word-break: break-word; cursor: pointer; }
+  /* Описание бывает в несколько строк: в списке показываем две, по клику разворачиваем. */
+  .item .what { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font-weight: 400; color: var(--muted); }
+  .item.open .what { -webkit-line-clamp: unset; }
   .item .a { font-weight: 800; white-space: nowrap; text-align: right; }
   .item .meta { color: var(--muted); font-size: 13px; }
   .item .acts { display: flex; gap: 2px; justify-content: flex-end; }
@@ -544,7 +547,7 @@
     if (!editingId) $('date').value = selDate;
     $('list').innerHTML = items.length
       ? items.map((e) => `<div class="item${e.id === editingId ? ' editing' : ''}">
-          <div class="t">${esc(e.project)}</div><div class="a">${money(amount(e))}</div>
+          <div class="t" title="${esc(e.project)}">${esc(clientOf(e.project))}${whatOf(e.project) ? ` · <span class="what">${esc(whatOf(e.project))}</span>` : ''}</div><div class="a">${money(amount(e))}</div>
           <div class="meta">${hoursText(e.hours)} × ${money(e.rate)}</div>
           ${canWrite ? `<div class="acts"><button type="button" data-edit="${e.id}">Изменить</button><button type="button" class="del" data-del="${e.id}">Удалить</button></div>` : '<div></div>'}
         </div>`).join('')
@@ -553,6 +556,9 @@
 
   // Клиент записи: часть названия до двоеточия («МедТехСервис: выкладка» → «МедТехСервис»).
   function clientOf(project) { return project.split(':')[0].trim() || project.trim(); }
+  // Что именно делали: всё после первого двоеточия. Описания бывают длинные,
+  // поэтому в списке они идут обычным начертанием и свёрнуты до двух строк.
+  function whatOf(project) { const i = project.indexOf(':'); return i < 0 ? '' : project.slice(i + 1).trim(); }
 
   function renderProjects() {
     // В подсказках только короткие имена клиентов, без длинных описаний работ.
@@ -704,6 +710,9 @@
   $('refreshBtn').addEventListener('click', reload);
 
   $('list').addEventListener('click', async (ev) => {
+    // Клик по описанию разворачивает его целиком: в списке видно две строки.
+    const title = ev.target.closest('.t');
+    if (title) { title.closest('.item').classList.toggle('open'); return; }
     const editId = ev.target.getAttribute('data-edit');
     const delId = ev.target.getAttribute('data-del');
     if (editId) {
